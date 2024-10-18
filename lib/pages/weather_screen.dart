@@ -7,6 +7,8 @@ import 'package:basic_weather/utils/info.dart';
 import 'package:basic_weather/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:basic_weather/utils/location.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -26,8 +28,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
     const int count = 8;
     const String unit = "metric";
 
+    Position position = await getPosition();
+
+    // final res = await http.get(Uri.parse(
+    //     "https://api.openweathermap.org/data/2.5/forecast?q=$city&units=$unit&cnt=$count&APPID=$apiKey"));
     final res = await http.get(Uri.parse(
-        "https://api.openweathermap.org/data/2.5/forecast?q=$city&units=$unit&cnt=$count&APPID=$apiKey"));
+        "https://api.openweathermap.org/data/2.5/forecast?lat=${position.latitude}&lon=${position.longitude}&units=$unit&cnt=$count&appid=$apiKey"));
+
     if (res.statusCode != 200) {
       throw "Failed to fetch (res: ${res.statusCode} ${res.body})";
     }

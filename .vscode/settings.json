@@ -1,5 +1,5 @@
 {
   "cmake.ignoreCMakeListsMissing": true,
-  "cSpell.words": ["dotenv"],
+  "cSpell.words": ["dotenv", "geolocator"]
   "java.configuration.updateBuildConfiguration": "interactive"
 }
