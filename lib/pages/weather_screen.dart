@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class WeatherScreen extends StatefulWidget {
@@ -145,30 +147,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       ),
                     ),
                     Center(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              AdditionalInfoCard(
-                                title: "Humidity",
-                                value: "${_weatherData!.humidity}%",
-                                icon: Icons.water_drop,
-                              ),
-                              AdditionalInfoCard(
-                                title: "Wind Speed",
-                                value: "${_weatherData!.windSpeed} km/h",
-                                icon: Icons.air,
-                              ),
-                              AdditionalInfoCard(
-                                title: "Pressure",
-                                value: "${_weatherData!.pressure} hPa",
-                                icon: Icons.speed,
-                              ),
-                            ],
-                          ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            AdditionalInfoCard(
+                              title: "Humidity",
+                              value: "${_weatherData!.humidity}%",
+                              icon: Icons.water_drop,
+                            ),
+                            AdditionalInfoCard(
+                              title: "Wind Speed",
+                              value: "${_weatherData!.windSpeed} km/h",
+                              icon: Icons.air,
+                            ),
+                            AdditionalInfoCard(
+                              title: "Pressure",
+                              value: "${_weatherData!.pressure} hPa",
+                              icon: Icons.speed,
+                            ),
+                          ],
                         ),
                       ),
                     )
@@ -228,39 +227,50 @@ class PrimaryWeatherBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
-        padding: const EdgeInsets.all(40),
-        decoration: BoxDecoration(
+        child: Card(
+          elevation: 8,
           color: Theme.of(context).splashColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: <Widget>[
-            Text(
-              "${temp.toString()}°C",
-              style: const TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      "${temp.toString()}°C",
+                      style: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Icon(
+                      weatherState.icon,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      weatherState.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-            Icon(
-              weatherState.icon,
-              size: 80,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              weatherState.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-                color: Colors.white,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
