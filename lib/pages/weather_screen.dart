@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:basic_weather/pages/forecast_cards.dart';
 import 'package:basic_weather/utils/data_classes.dart';
-import 'package:basic_weather/utils/secrets.dart';
+import 'package:basic_weather/utils/info.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
