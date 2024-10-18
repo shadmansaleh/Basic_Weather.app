@@ -31,25 +31,24 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final data = jsonDecode(res.body);
 
     final currentData = data["list"][0];
-    double temp = currentData['main']['temp'];
-    double tempFeelsLike = currentData['main']['feels_like'];
+    double temp = currentData['main']['temp'].toDouble();
+    double tempFeelsLike = currentData['main']['feels_like'].toDouble();
     double humidity = currentData['main']['humidity'].toDouble();
     double pressure = currentData['main']['pressure'].toDouble();
-    double windSpeed = currentData['wind']['speed'];
+    double windSpeed = currentData['wind']['speed'].toDouble();
     WeatherState weatherState =
         weatherStateFromOpenWeatherString(currentData['weather'][0]['main']);
 
-    List<ForecastData> forecasts = [];
-    for (var forecast in data["list"]) {
-      forecasts.add(ForecastData(
-        date: DateTime.fromMillisecondsSinceEpoch(forecast['dt'] * 1000,
-                isUtc: true)
-            .add(const Duration(hours: 6)),
-        temp: forecast['main']['temp'],
-        weatherState:
-            weatherStateFromOpenWeatherString(forecast['weather'][0]['main']),
-      ));
-    }
+    List<ForecastData> forecasts = (data["list"] as List)
+        .map((forecast) => ForecastData(
+              date: DateTime.fromMillisecondsSinceEpoch(forecast['dt'] * 1000,
+                      isUtc: true)
+                  .add(const Duration(hours: 6)),
+              temp: forecast['main']['temp'].toDouble(),
+              weatherState: weatherStateFromOpenWeatherString(
+                  forecast['weather'][0]['main']),
+            ))
+        .toList();
 
     setState(() {
       _weatherData = WeatherData(
