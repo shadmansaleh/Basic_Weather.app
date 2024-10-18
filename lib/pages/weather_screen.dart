@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:basic_weather/pages/forecast_cards.dart';
+import 'package:basic_weather/utils/data_classes.dart';
 import 'package:flutter/material.dart';
 
 class WeatherScreen extends StatefulWidget {
@@ -7,36 +9,6 @@ class WeatherScreen extends StatefulWidget {
 
   @override
   State<WeatherScreen> createState() => _WeatherScreenState();
-}
-
-class ForecastData {
-  final DateTime date;
-  final double temp;
-  final WeatherState weatherState;
-
-  ForecastData({
-    required this.date,
-    required this.temp,
-    required this.weatherState,
-  });
-}
-
-class WeatherData {
-  final double temp;
-  final WeatherState weatherState;
-  final double humidity;
-  final double windSpeed;
-  final double pressure;
-  final List<ForecastData> forecast;
-
-  WeatherData({
-    required this.temp,
-    required this.weatherState,
-    required this.humidity,
-    required this.windSpeed,
-    required this.pressure,
-    required this.forecast,
-  });
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
@@ -97,7 +69,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               // main card of todays weather
-              PrimaryWeatherBlock(
+              PrimaryWeatherCard(
                 temp: _weatherData!.temp,
                 weatherState: _weatherData!.weatherState,
               ),
@@ -182,43 +154,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 }
 
-enum WeatherState {
-  sunny,
-  cloudy,
-  rainy,
-  snowy,
-  thunderstorm,
-  foggy,
-  windy,
-  unknown
-}
-
-extension WeatherStateIcon on WeatherState {
-  IconData get icon {
-    switch (this) {
-      case WeatherState.sunny:
-        return Icons.wb_sunny;
-      case WeatherState.cloudy:
-        return Icons.cloud;
-      case WeatherState.rainy:
-        return Icons.cloudy_snowing;
-      case WeatherState.snowy:
-        return Icons.ac_unit;
-      case WeatherState.thunderstorm:
-        return Icons.flash_on;
-      case WeatherState.foggy:
-        return Icons.blur_on;
-      case WeatherState.windy:
-        return Icons.air;
-      case WeatherState.unknown:
-      default:
-        return Icons.help_outline;
-    }
-  }
-}
-
-class PrimaryWeatherBlock extends StatelessWidget {
-  const PrimaryWeatherBlock(
+class PrimaryWeatherCard extends StatelessWidget {
+  const PrimaryWeatherCard(
       {super.key, required this.temp, required this.weatherState});
 
   final double temp;
@@ -271,105 +208,6 @@ class PrimaryWeatherBlock extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class WeatherForecast extends StatelessWidget {
-  const WeatherForecast({
-    super.key,
-    required this.forecastData,
-  });
-
-  final List<ForecastData> forecastData;
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: forecastData
-              .map((data) => WeatherForecastSmallCard(forecastData: data))
-              .toList(),
-        ),
-      ),
-    );
-  }
-}
-
-// small blocks for showing future forecast
-class WeatherForecastSmallCard extends StatelessWidget {
-  const WeatherForecastSmallCard({super.key, required this.forecastData});
-
-  final ForecastData forecastData;
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 8),
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).splashColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Text(
-              "${forecastData.date.hour}:00",
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Icon(forecastData.weatherState.icon, size: 40, color: Colors.white),
-            const SizedBox(height: 4),
-            Text("${forecastData.temp.toString()}°C"),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// small blocks for additional information
-class AdditionalInfoCard extends StatelessWidget {
-  const AdditionalInfoCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-  });
-
-  final String title;
-  final String value;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 40, color: Colors.white),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(value),
-          ],
         ),
       ),
     );
