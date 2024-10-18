@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:basic_weather/pages/forecast_cards.dart';
 import 'package:basic_weather/utils/data_classes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -12,40 +15,58 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
-  late WeatherData? _weatherData;
+  WeatherData? _weatherData;
+  Future getCurrentWeather() async {
+    final String apiKey = dotenv.env['OPEN_WEATHER_API_KEY'] ?? "";
+    const String city = "Chittagong,bd";
+    const int count = 8;
+    const String unit = "metric";
+
+    final res = await http.get(Uri.parse(
+        "https://api.openweathermap.org/data/2.5/forecast?q=$city&units=$unit&cnt=$count&APPID=$apiKey"));
+    if (res.statusCode != 200) {
+      throw "Failed to fetch (res: ${res.statusCode} ${res.body})";
+    }
+
+    final data = jsonDecode(res.body);
+
+    final currentData = data["list"][0];
+    double temp = currentData['main']['temp'];
+    double tempFeelsLike = currentData['main']['feels_like'];
+    double humidity = currentData['main']['humidity'].toDouble();
+    double pressure = currentData['main']['pressure'].toDouble();
+    double windSpeed = currentData['wind']['speed'];
+    WeatherState weatherState =
+        weatherStateFromOpenWeatherString(currentData['weather'][0]['main']);
+
+    List<ForecastData> forecasts = [];
+    for (var forecast in data["list"]) {
+      forecasts.add(ForecastData(
+        date: DateTime.fromMillisecondsSinceEpoch(forecast['dt'] * 1000,
+                isUtc: true)
+            .add(const Duration(hours: 6)),
+        temp: forecast['main']['temp'],
+        weatherState:
+            weatherStateFromOpenWeatherString(forecast['weather'][0]['main']),
+      ));
+    }
+
+    setState(() {
+      _weatherData = WeatherData(
+          temp: temp,
+          feelsLike: tempFeelsLike,
+          weatherState: weatherState,
+          humidity: humidity,
+          windSpeed: windSpeed,
+          pressure: pressure,
+          forecast: forecasts);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    _weatherData = WeatherData(
-      temp: 25,
-      weatherState: WeatherState.rainy,
-      humidity: 50,
-      windSpeed: 10,
-      pressure: 1013,
-      forecast: [
-        ForecastData(
-          date: DateTime.now().add(const Duration(hours: 3)),
-          temp: 24,
-          weatherState: WeatherState.cloudy,
-        ),
-        ForecastData(
-          date: DateTime.now().add(const Duration(hours: 6)),
-          temp: 23,
-          weatherState: WeatherState.rainy,
-        ),
-        ForecastData(
-          date: DateTime.now().add(const Duration(hours: 9)),
-          temp: 12,
-          weatherState: WeatherState.snowy,
-        ),
-        ForecastData(
-          date: DateTime.now().add(const Duration(hours: 12)),
-          temp: 22,
-          weatherState: WeatherState.snowy,
-        ),
-      ],
-    );
+    getCurrentWeather();
   }
 
   @override
@@ -57,99 +78,109 @@ class _WeatherScreenState extends State<WeatherScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {},
+            onPressed: () {
+              getCurrentWeather();
+            },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // main card of todays weather
-              PrimaryWeatherCard(
-                temp: _weatherData!.temp,
-                weatherState: _weatherData!.weatherState,
-              ),
-
-              // Weather forecast section
-              Container(
-                margin: const EdgeInsets.only(top: 30),
+      body: _weatherData == null
+          ? const Center(
+              child: RefreshProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Container(
+                margin: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        "Weather Forecast",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                    // main card of todays weather
+                    PrimaryWeatherCard(
+                      temp: _weatherData!.temp,
+                      weatherState: _weatherData!.weatherState,
                     ),
+
+                    // Weather forecast section
                     Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        child: WeatherForecast(
-                            forecastData: _weatherData!.forecast))
-                  ],
-                ),
-              ),
-
-              // Additional info section
-              Container(
-                margin: const EdgeInsets.only(top: 30),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        "Additional Information",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      margin: const EdgeInsets.only(top: 30),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              "Weather Forecast",
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              child: WeatherForecast(
+                                  forecastData: _weatherData!.forecast))
+                        ],
                       ),
                     ),
-                    Center(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            AdditionalInfoCard(
-                              title: "Humidity",
-                              value: "${_weatherData!.humidity}%",
-                              icon: Icons.water_drop,
+
+                    // Additional info section
+                    Container(
+                      margin: const EdgeInsets.only(top: 30),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              "Additional Information",
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                            AdditionalInfoCard(
-                              title: "Wind Speed",
-                              value: "${_weatherData!.windSpeed} km/h",
-                              icon: Icons.air,
+                          ),
+                          Center(
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceEvenly,
+                              runSpacing: 12,
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                AdditionalInfoCard(
+                                  title: "Feels Like",
+                                  value: "${_weatherData!.feelsLike}°C",
+                                  icon: Icons.thermostat,
+                                ),
+                                AdditionalInfoCard(
+                                  title: "Humidity",
+                                  value: "${_weatherData!.humidity}%",
+                                  icon: Icons.water_drop,
+                                ),
+                                AdditionalInfoCard(
+                                  title: "Wind Speed",
+                                  value: "${_weatherData!.windSpeed} m/s",
+                                  icon: Icons.air,
+                                ),
+                                AdditionalInfoCard(
+                                  title: "Pressure",
+                                  value: "${_weatherData!.pressure} hPa",
+                                  icon: Icons.speed,
+                                ),
+                              ],
                             ),
-                            AdditionalInfoCard(
-                              title: "Pressure",
-                              value: "${_weatherData!.pressure} hPa",
-                              icon: Icons.speed,
-                            ),
-                          ],
-                        ),
+                          )
+                        ],
                       ),
                     )
                   ],
                 ),
-              )
-            ],
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }

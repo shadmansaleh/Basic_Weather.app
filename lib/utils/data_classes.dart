@@ -11,7 +11,28 @@ enum WeatherState {
   unknown
 }
 
-extension WeatherStateIcon on WeatherState {
+WeatherState weatherStateFromOpenWeatherString(String state) {
+  switch (state.toLowerCase()) {
+    case 'sun':
+      return WeatherState.sunny;
+    case 'clouds':
+      return WeatherState.cloudy;
+    case 'rain':
+      return WeatherState.rainy;
+    case 'snow':
+      return WeatherState.snowy;
+    case 'thunderstorm':
+      return WeatherState.thunderstorm;
+    case 'fog':
+      return WeatherState.foggy;
+    case 'wind':
+      return WeatherState.windy;
+    default:
+      return WeatherState.unknown;
+  }
+}
+
+extension WeatherRaineIcon on WeatherState {
   IconData get icon {
     switch (this) {
       case WeatherState.sunny:
@@ -49,6 +70,7 @@ class ForecastData {
 
 class WeatherData {
   final double temp;
+  final double feelsLike;
   final WeatherState weatherState;
   final double humidity;
   final double windSpeed;
@@ -57,6 +79,7 @@ class WeatherData {
 
   WeatherData({
     required this.temp,
+    required this.feelsLike,
     required this.weatherState,
     required this.humidity,
     required this.windSpeed,
