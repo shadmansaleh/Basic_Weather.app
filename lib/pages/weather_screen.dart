@@ -144,29 +144,31 @@ class _WeatherScreenState extends State<WeatherScreen> {
                         ),
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            AdditionalInfoCard(
-                              title: "Humidity",
-                              value: "${_weatherData!.humidity}%",
-                              icon: Icons.water_drop,
-                            ),
-                            AdditionalInfoCard(
-                              title: "Wind Speed",
-                              value: "${_weatherData!.windSpeed} km/h",
-                              icon: Icons.air,
-                            ),
-                            AdditionalInfoCard(
-                              title: "Pressure",
-                              value: "${_weatherData!.pressure} hPa",
-                              icon: Icons.speed,
-                            ),
-                          ],
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              AdditionalInfoCard(
+                                title: "Humidity",
+                                value: "${_weatherData!.humidity}%",
+                                icon: Icons.water_drop,
+                              ),
+                              AdditionalInfoCard(
+                                title: "Wind Speed",
+                                value: "${_weatherData!.windSpeed} km/h",
+                                icon: Icons.air,
+                              ),
+                              AdditionalInfoCard(
+                                title: "Pressure",
+                                value: "${_weatherData!.pressure} hPa",
+                                icon: Icons.speed,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
@@ -274,13 +276,15 @@ class WeatherForecast extends StatelessWidget {
   final List<ForecastData> forecastData;
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: forecastData
-            .map((data) => WeatherForecastSmallCard(forecastData: data))
-            .toList(),
+    return Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: forecastData
+              .map((data) => WeatherForecastSmallCard(forecastData: data))
+              .toList(),
+        ),
       ),
     );
   }
