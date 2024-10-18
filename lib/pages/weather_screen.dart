@@ -79,6 +79,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
+              setState(() {
+                _weatherData = null;
+              });
               getCurrentWeather();
             },
           ),
@@ -86,7 +89,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       ),
       body: _weatherData == null
           ? const Center(
-              child: RefreshProgressIndicator(),
+              child: CircularProgressIndicator.adaptive(),
             )
           : SingleChildScrollView(
               child: Container(

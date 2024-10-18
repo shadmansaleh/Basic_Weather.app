@@ -27,6 +27,8 @@ WeatherState weatherStateFromOpenWeatherString(String state) {
       return WeatherState.foggy;
     case 'wind':
       return WeatherState.windy;
+    case 'clear':
+      return WeatherState.sunny;
     default:
       return WeatherState.unknown;
   }
