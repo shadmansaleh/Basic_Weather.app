@@ -1,4 +1,5 @@
 {
   "cmake.ignoreCMakeListsMissing": true,
-  "cSpell.words": ["dotenv"]
+  "cSpell.words": ["dotenv"],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

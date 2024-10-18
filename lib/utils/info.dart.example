@@ -1,0 +1,3 @@
+abstract class Secrets {
+  static final String OPEN_WEATHER_API_KEY = "";
+}

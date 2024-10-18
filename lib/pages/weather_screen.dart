@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:basic_weather/pages/forecast_cards.dart';
 import 'package:basic_weather/utils/data_classes.dart';
+import 'package:basic_weather/utils/secrets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class WeatherScreen extends StatefulWidget {
@@ -17,7 +17,8 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   WeatherData? _weatherData;
   Future getCurrentWeather() async {
-    final String apiKey = dotenv.env['OPEN_WEATHER_API_KEY'] ?? "";
+    final String apiKey = Secrets.OPEN_WEATHER_API_KEY;
+
     const String city = "Chittagong,bd";
     const int count = 8;
     const String unit = "metric";
