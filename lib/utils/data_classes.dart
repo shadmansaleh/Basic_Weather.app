@@ -38,22 +38,22 @@ extension WeatherRaineIcon on WeatherState {
   IconData get icon {
     switch (this) {
       case WeatherState.sunny:
-        return Icons.wb_sunny;
+        return Icons.wb_sunny_outlined;
       case WeatherState.cloudy:
-        return Icons.cloud;
+        return Icons.cloud_outlined;
       case WeatherState.rainy:
         return Icons.cloudy_snowing;
       case WeatherState.snowy:
-        return Icons.ac_unit;
+        return Icons.ac_unit_outlined;
       case WeatherState.thunderstorm:
-        return Icons.flash_on;
+        return Icons.flash_on_outlined;
       case WeatherState.foggy:
-        return Icons.blur_on;
+        return Icons.blur_on_outlined;
       case WeatherState.windy:
-        return Icons.air;
+        return Icons.air_outlined;
       case WeatherState.unknown:
       default:
-        return Icons.help_outline;
+        return Icons.help_outline_outlined;
     }
   }
 }
@@ -73,19 +73,27 @@ class ForecastData {
 class WeatherData {
   final double temp;
   final double feelsLike;
+  final String weatherDescription;
   final WeatherState weatherState;
   final double humidity;
   final double windSpeed;
   final double pressure;
+  final double visibility;
+  final DateTime sunrise;
+  final DateTime sunset;
   final List<ForecastData> forecast;
 
   WeatherData({
     required this.temp,
     required this.feelsLike,
+    required this.weatherDescription,
     required this.weatherState,
     required this.humidity,
     required this.windSpeed,
     required this.pressure,
+    required this.visibility,
+    required this.sunrise,
+    required this.sunset,
     required this.forecast,
   });
 }

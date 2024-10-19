@@ -4,8 +4,10 @@ import 'dart:ui';
 import 'package:basic_weather/pages/forecast_cards.dart';
 import 'package:basic_weather/utils/data_classes.dart';
 import 'package:basic_weather/utils/info.dart';
+import 'package:basic_weather/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -34,9 +36,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final currentData = data["list"][0];
     double temp = currentData['main']['temp'].toDouble();
     double tempFeelsLike = currentData['main']['feels_like'].toDouble();
+    String weatherDescription = currentData['weather'][0]['description'];
     double humidity = currentData['main']['humidity'].toDouble();
     double pressure = currentData['main']['pressure'].toDouble();
     double windSpeed = currentData['wind']['speed'].toDouble();
+    double visibility = currentData['visibility'].toDouble() / 1000;
+    int timezoneOffset = data['city']['timezone'];
+    DateTime sunrise = DateTime.fromMillisecondsSinceEpoch(
+            data['city']['sunrise'] * 1000,
+            isUtc: true)
+        .add(Duration(seconds: timezoneOffset));
+    DateTime sunset = DateTime.fromMillisecondsSinceEpoch(
+            data['city']['sunset'] * 1000,
+            isUtc: true)
+        .add(Duration(seconds: timezoneOffset));
+
     WeatherState weatherState =
         weatherStateFromOpenWeatherString(currentData['weather'][0]['main']);
 
@@ -44,7 +58,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         .map((forecast) => ForecastData(
               date: DateTime.fromMillisecondsSinceEpoch(forecast['dt'] * 1000,
                       isUtc: true)
-                  .add(const Duration(hours: 6)),
+                  .add(Duration(seconds: timezoneOffset)),
               temp: forecast['main']['temp'].toDouble(),
               weatherState: weatherStateFromOpenWeatherString(
                   forecast['weather'][0]['main']),
@@ -54,11 +68,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
     setState(() {
       _weatherData = WeatherData(
           temp: temp,
+          weatherDescription: weatherDescription,
           feelsLike: tempFeelsLike,
           weatherState: weatherState,
           humidity: humidity,
           windSpeed: windSpeed,
           pressure: pressure,
+          visibility: visibility,
+          sunrise: sunrise,
+          sunset: sunset,
           forecast: forecasts);
     });
   }
@@ -102,6 +120,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     PrimaryWeatherCard(
                       temp: _weatherData!.temp,
                       weatherState: _weatherData!.weatherState,
+                      description: _weatherData!.weatherDescription,
                     ),
 
                     // Weather forecast section
@@ -157,23 +176,38 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 AdditionalInfoCard(
                                   title: "Feels Like",
                                   value: "${_weatherData!.feelsLike}°C",
-                                  icon: Icons.thermostat,
+                                  icon: Icons.thermostat_outlined,
                                 ),
                                 AdditionalInfoCard(
                                   title: "Humidity",
                                   value: "${_weatherData!.humidity}%",
-                                  icon: Icons.water_drop,
+                                  icon: Icons.water_drop_outlined,
                                 ),
                                 AdditionalInfoCard(
                                   title: "Wind Speed",
                                   value: "${_weatherData!.windSpeed} m/s",
                                   icon: Icons.air,
                                 ),
+                                _weatherData!.sunrise.isAfter(DateTime.now())
+                                    ? AdditionalInfoCard(
+                                        title: "Sunrise",
+                                        value: DateFormat.jm()
+                                            .format(_weatherData!.sunrise),
+                                        icon: Icons.wb_sunny_outlined)
+                                    : AdditionalInfoCard(
+                                        title: "Sunset",
+                                        value: DateFormat.jm()
+                                            .format(_weatherData!.sunset),
+                                        icon: Icons.bedtime_outlined),
                                 AdditionalInfoCard(
                                   title: "Pressure",
                                   value: "${_weatherData!.pressure} hPa",
                                   icon: Icons.speed,
                                 ),
+                                AdditionalInfoCard(
+                                    title: "Visibility",
+                                    value: "${_weatherData!.visibility} km",
+                                    icon: Icons.remove_red_eye_outlined),
                               ],
                             ),
                           )
@@ -190,9 +224,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
 class PrimaryWeatherCard extends StatelessWidget {
   const PrimaryWeatherCard(
-      {super.key, required this.temp, required this.weatherState});
+      {super.key,
+      required this.temp,
+      required this.description,
+      required this.weatherState});
 
   final double temp;
+  final String description;
   final WeatherState weatherState;
 
   @override
@@ -230,7 +268,7 @@ class PrimaryWeatherCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      weatherState.name,
+                      description.toTitleString(),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w400,

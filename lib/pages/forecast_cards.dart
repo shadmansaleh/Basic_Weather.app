@@ -1,5 +1,6 @@
 import 'package:basic_weather/utils/data_classes.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class WeatherForecast extends StatelessWidget {
   const WeatherForecast({
@@ -42,7 +43,7 @@ class WeatherForecastSmallCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              "${forecastData.date.hour}:00",
+              DateFormat.j().format(forecastData.date),
               style: const TextStyle(
                 fontSize: 16,
               ),
