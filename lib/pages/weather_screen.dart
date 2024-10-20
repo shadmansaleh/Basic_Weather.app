@@ -6,6 +6,7 @@ import 'package:basic_weather/utils/data_classes.dart';
 import 'package:basic_weather/utils/info.dart';
 import 'package:basic_weather/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -51,6 +52,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
             isUtc: true)
         .add(Duration(seconds: timezoneOffset));
 
+    final now = DateTime.now().toUtc().add(Duration(seconds: timezoneOffset));
+    if (sunrise.isBefore(now)) sunrise = sunrise.add(const Duration(days: 1));
+    if (sunset.isBefore(now)) sunset = sunset.add(const Duration(days: 1));
+    final showSunrise = sunrise.difference(now) < sunset.difference(now);
+
     WeatherState weatherState =
         weatherStateFromOpenWeatherString(currentData['weather'][0]['main']);
 
@@ -77,6 +83,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           visibility: visibility,
           sunrise: sunrise,
           sunset: sunset,
+          showSunrise: showSunrise,
           forecast: forecasts);
     });
   }
@@ -188,7 +195,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   value: "${_weatherData!.windSpeed} m/s",
                                   icon: Icons.air,
                                 ),
-                                _weatherData!.sunrise.isAfter(DateTime.now())
+                                _weatherData!.showSunrise
                                     ? AdditionalInfoCard(
                                         title: "Sunrise",
                                         value: DateFormat.jm()

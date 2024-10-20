@@ -81,6 +81,7 @@ class WeatherData {
   final double visibility;
   final DateTime sunrise;
   final DateTime sunset;
+  final bool showSunrise;
   final List<ForecastData> forecast;
 
   WeatherData({
@@ -94,6 +95,7 @@ class WeatherData {
     required this.visibility,
     required this.sunrise,
     required this.sunset,
+    required this.showSunrise,
     required this.forecast,
   });
 }
